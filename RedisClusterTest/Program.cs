@@ -34,7 +34,7 @@ namespace RedisClusterTest
                 var key3 = redisConnectionManager.GetDatabase().StringGet("Key3");
                 var key4 = redisConnectionManager.GetDatabase().StringGet("Key4");
                 //Console.WriteLine($"是否已連接: {redisConnection.IsConnected}");
-                //Console.WriteLine($"Key1:{key1}");
+                Console.WriteLine($"Key1:{key1}");
                 Console.WriteLine($"Key2:{key2}");
                 Console.WriteLine($"Key3:{key3}");
                 Console.WriteLine($"Key4:{key4}");
