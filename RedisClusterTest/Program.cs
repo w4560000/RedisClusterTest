@@ -16,9 +16,10 @@ namespace RedisClusterTest
         {
             _configurationOptions = configurationOptions;
             _retryPolicy = retryPolicy;
+            SetConnection();
         }
 
-        public IConnectionMultiplexer GetConnection()
+        public IConnectionMultiplexer SetConnection()
         {
             return _retryPolicy.Execute(() =>
             {
