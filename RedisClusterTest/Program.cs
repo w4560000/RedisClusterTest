@@ -112,10 +112,10 @@ namespace RedisClusterTest
 
             while (true)
             {
-                var key1 = redisConnectionManager.GetConnection().GetDatabase().StringGet("Key1");
-                var key2 = redisConnectionManager.GetConnection().GetDatabase().StringGet("Key2");
-                var key3 = redisConnectionManager.GetConnection().GetDatabase().StringGet("Key3");
-                var key4 = redisConnectionManager.GetConnection().GetDatabase().StringGet("Key4");
+                var key1 = redisConnectionManager.Get<string>("Key1");
+                var key2 = redisConnectionManager.Get<string>("Key2");
+                var key3 = redisConnectionManager.Get<string>("Key3");
+                var key4 = redisConnectionManager.Get<string>("Key4");
                 //Console.WriteLine($"是否已連接: {redisConnection.IsConnected}");
                 Console.WriteLine(DateTime.Now);
                 Console.WriteLine($"Key1:{key1}");
