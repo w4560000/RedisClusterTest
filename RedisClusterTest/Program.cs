@@ -1,11 +1,92 @@
-﻿using StackExchange.Redis;
+﻿using Newtonsoft.Json;
+using Polly;
+using Polly.Retry;
+using StackExchange.Redis;
 
 namespace RedisClusterTest
 {
+    public class RedisConnectionManager
+    {
+        private readonly object _lock = new object();
+        private IConnectionMultiplexer _connectionMultiplexer;
+        private readonly ConfigurationOptions _configurationOptions;
+        private readonly RetryPolicy _retryPolicy;
+
+        public RedisConnectionManager(ConfigurationOptions configurationOptions, RetryPolicy retryPolicy)
+        {
+            _configurationOptions = configurationOptions;
+            _retryPolicy = retryPolicy;
+        }
+
+        public IConnectionMultiplexer GetConnection()
+        {
+            return _retryPolicy.Execute(() =>
+            {
+                if (_connectionMultiplexer == null || !_connectionMultiplexer.IsConnected)
+                {
+                    lock (_lock)
+                    {
+                        _connectionMultiplexer?.Close();
+                        _connectionMultiplexer = ConnectionMultiplexer.Connect(_configurationOptions);
+                    }
+                }
+
+                return _connectionMultiplexer;
+            });
+        }
+
+        public T? Get<T>(string key)
+        {
+            return _retryPolicy.Execute(() =>
+            {
+                try
+                {
+                    var value = _connectionMultiplexer.GetDatabase().StringGet(key);
+
+                    if (value.IsNullOrEmpty)
+                        return default;
+
+                    return JsonConvert.DeserializeObject<T>(value);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Get 發生錯誤, Error:{ex.Message}");
+                    throw ex;
+                }
+            });
+        }
+
+        public void Update(string key, string data)
+        {
+            _retryPolicy.Execute(() =>
+            {
+                try
+                {
+                    _connectionMultiplexer.GetDatabase().StringSet(key, data);
+                    Console.WriteLine("已更新");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Update 發生錯誤, Error:{ex.Message}");
+                    throw ex;
+                }
+            });
+        }
+    }
+
     internal class Program
     {
         static void Main(string[] args)
         {
+
+            var retryPolicy = Policy.Handle<RedisConnectionException>()
+                        .Or<RedisTimeoutException>()
+                        .Retry(3, (exception, retryCount) =>
+                        {
+                            Console.WriteLine($"Redis connection failed. Retrying ({retryCount})...");
+                        });
+
+
             var configuration = new ConfigurationOptions()
             {
                 EndPoints = {
@@ -25,14 +106,16 @@ namespace RedisClusterTest
                 ConnectRetry = 5
             };
 
-            var redisConnectionManager = ConnectionMultiplexer.Connect(configuration);// new RedisConnectionManager(configuration, retryPolicy);
+            var redisConnectionManager =  new RedisConnectionManager(configuration, retryPolicy);
+
+            //var redisConnectionManager = ConnectionMultiplexer.Connect(configuration);// new RedisConnectionManager(configuration, retryPolicy);
 
             while (true)
             {
-                var key1 = redisConnectionManager.GetDatabase().StringGet("Key1");
-                var key2 = redisConnectionManager.GetDatabase().StringGet("Key2");
-                var key3 = redisConnectionManager.GetDatabase().StringGet("Key3");
-                var key4 = redisConnectionManager.GetDatabase().StringGet("Key4");
+                var key1 = redisConnectionManager.GetConnection().GetDatabase().StringGet("Key1");
+                var key2 = redisConnectionManager.GetConnection().GetDatabase().StringGet("Key2");
+                var key3 = redisConnectionManager.GetConnection().GetDatabase().StringGet("Key3");
+                var key4 = redisConnectionManager.GetConnection().GetDatabase().StringGet("Key4");
                 //Console.WriteLine($"是否已連接: {redisConnection.IsConnected}");
                 Console.WriteLine(DateTime.Now);
                 Console.WriteLine($"Key1:{key1}");
