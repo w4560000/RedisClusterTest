@@ -102,8 +102,8 @@ namespace RedisClusterTest
                 //    "35.194.230.192:6379"
                 //},
                 AbortOnConnectFail = true,
-                ConnectTimeout = 10000,
-                //SyncTimeout = 10000,
+                ConnectTimeout = 1000,
+                SyncTimeout = 1000,
                 ConnectRetry = 5
             };
 
