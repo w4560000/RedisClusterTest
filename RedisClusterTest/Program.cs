@@ -99,9 +99,6 @@ namespace RedisClusterTest
                         { "10.240.0.15:6379" },
                         { "10.240.0.16:6379" },
                     },
-                //EndPoints = {
-                //    "35.194.230.192:6379"
-                //},
                 AbortOnConnectFail = true,
                 ConnectTimeout = 1000,
                 SyncTimeout = 1000,
@@ -114,20 +111,14 @@ namespace RedisClusterTest
 
             while (true)
             {
-                var key1 = redisConnectionManager.Get<string>("Key1");
-                var key2 = redisConnectionManager.Get<string>("Key2");
-                var key3 = redisConnectionManager.Get<string>("Key3");
-                var key4 = redisConnectionManager.Get<string>("Key4");
-                //Console.WriteLine($"是否已連接: {redisConnection.IsConnected}");
-                Console.WriteLine(DateTime.Now);
-                Console.WriteLine($"Key1:{key1}");
-                Console.WriteLine($"Key2:{key2}");
-                Console.WriteLine($"Key3:{key3}");
-                Console.WriteLine($"Key4:{key4}");
-                Console.WriteLine();
+                var value = redisConnectionManager.Get<string>("Key1");
+                var newValue = Convert.ToInt32(value) + 1;
+
+                Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} 預計更新為 {newValue}");
+                redisConnectionManager.Update("Key1", newValue.ToString());
+                Console.WriteLine($"更新後確認 {redisConnectionManager.Get<string>("Key1")}\n");
                 Thread.Sleep(1000);
             }
-
 
             Console.WriteLine("Hello, World!");
         }
