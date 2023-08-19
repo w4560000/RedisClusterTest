@@ -79,7 +79,6 @@ namespace RedisClusterTest
     {
         private static void Main(string[] args)
         {
-
             var retryPolicy = Policy.Handle<RedisConnectionException>()
                         .Or<RedisTimeoutException>()
                         .Or<RedisServerException>()
@@ -101,21 +100,17 @@ namespace RedisClusterTest
 
             using (TextWriter log = File.CreateText("/home/leozheng0629/RedisClusterTest/RedisClusterTest/redis_log.txt"))
             {
-
                 var redisConnectionManager = new RedisConnectionManager(configuration, retryPolicy, log);
 
-                while (true)
-                {
-                    var value = redisConnectionManager.Get<string>("Key1");
-                    Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} Key1 = {value}");
+                var value = redisConnectionManager.Get<string>("Key1");
+                Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} Key1 = {value}");
 
-                    var newValue = Convert.ToInt32(value) + 1;
+                var newValue = Convert.ToInt32(value) + 1;
 
-                    Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} Key1 預計更新為 {newValue}");
-                    redisConnectionManager.Update("Key1", newValue.ToString());
-                    Console.WriteLine($"更新後確認 Key1 = {redisConnectionManager.Get<string>("Key1")}\n");
-                    Thread.Sleep(1000);
-                }
+                Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} Key1 預計更新為 {newValue}");
+                redisConnectionManager.Update("Key1", newValue.ToString());
+                Console.WriteLine($"更新後確認 Key1 = {redisConnectionManager.Get<string>("Key1")}\n");
+                Thread.Sleep(1000);
             }
         }
     }
