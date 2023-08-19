@@ -42,7 +42,7 @@ namespace RedisClusterTest
             {
                 try
                 {
-                    var value = _connectionMultiplexer.GetDatabase().StringGet(key, flags: CommandFlags.PreferReplica);
+                    var value = _connectionMultiplexer.GetDatabase().StringGet(key, flags: CommandFlags.None);
 
                     if (value.IsNullOrEmpty)
                         return default;
@@ -63,7 +63,7 @@ namespace RedisClusterTest
             {
                 try
                 {
-                    _connectionMultiplexer.GetDatabase().StringSet(key, data, flags: CommandFlags.DemandMaster);
+                    _connectionMultiplexer.GetDatabase().StringSet(key, data, flags: CommandFlags.None);
                     Console.WriteLine("已更新");
                 }
                 catch (Exception ex)
@@ -105,8 +105,6 @@ namespace RedisClusterTest
                 ConnectRetry = 5
             };
 
-            //var redisConnectionManager =  new RedisConnectionManager(configuration, retryPolicy);
-
             var redisConnectionManager = new RedisConnectionManager(configuration, retryPolicy);
 
             while (true)
@@ -121,8 +119,6 @@ namespace RedisClusterTest
                 Console.WriteLine($"更新後確認 Key1 = {redisConnectionManager.Get<string>("Key1")}\n");
                 Thread.Sleep(1000);
             }
-
-            Console.WriteLine("Hello, World!");
         }
     }
 }
