@@ -42,7 +42,7 @@ namespace RedisClusterTest
             {
                 try
                 {
-                    var value = _connectionMultiplexer.GetDatabase().StringGet(key, flags: CommandFlags.NoRedirect);
+                    var value = _connectionMultiplexer.GetDatabase().StringGet(key);
 
                     if (value.IsNullOrEmpty)
                         return default;
@@ -63,7 +63,7 @@ namespace RedisClusterTest
             {
                 try
                 {
-                    _connectionMultiplexer.GetDatabase().StringSet(key, data, flags: CommandFlags.NoRedirect);
+                    _connectionMultiplexer.GetDatabase().StringSet(key, data);
                     Console.WriteLine("已更新");
                 }
                 catch (Exception ex)
@@ -97,13 +97,13 @@ namespace RedisClusterTest
                         { "107.167.177.175:6379" },
                         { "35.221.130.206:6379" },
                     },
-                AbortOnConnectFail = true,
+                AbortOnConnectFail = false,
                 ConnectTimeout = 1000,
-                SyncTimeout = 1000,
+                SyncTimeout = 10000,
                 ConnectRetry = 5
             };
 
-            using (TextWriter log = File.CreateText("/home/leozheng0629/RedisClusterTest/RedisClusterTest/redis_log.txt"))
+            using (TextWriter log = File.CreateText("D:\\redis_log.txt"))
             {
                 var redisConnectionManager = new RedisConnectionManager(configuration, retryPolicy, log);
 
