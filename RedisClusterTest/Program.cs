@@ -86,11 +86,10 @@ namespace RedisClusterTest
             InitSentinelConnection();
             ResetConnection();
 
-                while (true)
-                {
+            while (true)
+            {
                 try
                 {
-
                     var value = _replicaConnectionMultiplexer.GetDatabase().StringGet("Key1");
                     Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} Key1 = {value}");
                     var newValue = Convert.ToInt32(value) + 1;
@@ -100,7 +99,7 @@ namespace RedisClusterTest
 
                     Thread.Sleep(1000);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + $" Error {ex.Message}");
                 }
