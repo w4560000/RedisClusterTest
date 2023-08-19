@@ -12,14 +12,14 @@ namespace RedisClusterTest
         private readonly ConfigurationOptions _configurationOptions;
         private readonly RetryPolicy _retryPolicy;
 
-        public RedisConnectionManager(ConfigurationOptions configurationOptions, RetryPolicy retryPolicy)
+        public RedisConnectionManager(ConfigurationOptions configurationOptions, RetryPolicy retryPolicy, TextWriter log)
         {
             _configurationOptions = configurationOptions;
             _retryPolicy = retryPolicy;
-            SetConnection();
+            SetConnection(log);
         }
 
-        public IConnectionMultiplexer SetConnection()
+        public IConnectionMultiplexer SetConnection(TextWriter log)
         {
             return _retryPolicy.Execute(() =>
             {
@@ -28,7 +28,7 @@ namespace RedisClusterTest
                     lock (_lock)
                     {
                         _connectionMultiplexer?.Close();
-                        _connectionMultiplexer = ConnectionMultiplexer.Connect(_configurationOptions);
+                        _connectionMultiplexer = ConnectionMultiplexer.Connect(_configurationOptions, log);
                     }
                 }
 
@@ -77,7 +77,7 @@ namespace RedisClusterTest
 
     internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
 
             var retryPolicy = Policy.Handle<RedisConnectionException>()
@@ -87,7 +87,6 @@ namespace RedisClusterTest
                         {
                             Console.WriteLine($"{DateTime.Now} Redis connection failed. Retrying ({retryCount})...");
                         });
-
 
             var configuration = new ConfigurationOptions()
             {
@@ -100,19 +99,23 @@ namespace RedisClusterTest
                 ConnectRetry = 5
             };
 
-            var redisConnectionManager = new RedisConnectionManager(configuration, retryPolicy);
-
-            while (true)
+            using (TextWriter log = File.CreateText("/home/leozheng0629/RedisClusterTest/RedisClusterTest/redis_log.txt"))
             {
-                var value = redisConnectionManager.Get<string>("Key1");
-                Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} Key1 = {value}");
 
-                var newValue = Convert.ToInt32(value) + 1;
+                var redisConnectionManager = new RedisConnectionManager(configuration, retryPolicy, log);
 
-                Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} Key1 預計更新為 {newValue}");
-                redisConnectionManager.Update("Key1", newValue.ToString());
-                Console.WriteLine($"更新後確認 Key1 = {redisConnectionManager.Get<string>("Key1")}\n");
-                Thread.Sleep(1000);
+                while (true)
+                {
+                    var value = redisConnectionManager.Get<string>("Key1");
+                    Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} Key1 = {value}");
+
+                    var newValue = Convert.ToInt32(value) + 1;
+
+                    Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} Key1 預計更新為 {newValue}");
+                    redisConnectionManager.Update("Key1", newValue.ToString());
+                    Console.WriteLine($"更新後確認 Key1 = {redisConnectionManager.Get<string>("Key1")}\n");
+                    Thread.Sleep(1000);
+                }
             }
         }
     }
