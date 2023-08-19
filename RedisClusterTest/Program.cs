@@ -82,6 +82,7 @@ namespace RedisClusterTest
 
             var retryPolicy = Policy.Handle<RedisConnectionException>()
                         .Or<RedisTimeoutException>()
+                        .Or<RedisServerException>()
                         .Retry(3, (exception, retryCount) =>
                         {
                             Console.WriteLine($"Redis connection failed. Retrying ({retryCount})...");
