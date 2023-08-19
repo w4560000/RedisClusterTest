@@ -42,7 +42,7 @@ namespace RedisClusterTest
             {
                 try
                 {
-                    var value = _connectionMultiplexer.GetDatabase().StringGet(key);
+                    var value = _connectionMultiplexer.GetDatabase().StringGet(key, flags: CommandFlags.PreferReplica);
 
                     if (value.IsNullOrEmpty)
                         return default;
@@ -63,7 +63,7 @@ namespace RedisClusterTest
             {
                 try
                 {
-                    _connectionMultiplexer.GetDatabase().StringSet(key, data);
+                    _connectionMultiplexer.GetDatabase().StringSet(key, data, flags: CommandFlags.DemandMaster);
                     Console.WriteLine("已更新");
                 }
                 catch (Exception ex)
