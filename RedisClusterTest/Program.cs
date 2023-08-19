@@ -112,11 +112,13 @@ namespace RedisClusterTest
             while (true)
             {
                 var value = redisConnectionManager.Get<string>("Key1");
+                Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} Key1 =value}");
+
                 var newValue = Convert.ToInt32(value) + 1;
 
-                Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} 預計更新為 {newValue}");
+                Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} Key1 預計更新為 {newValue}");
                 redisConnectionManager.Update("Key1", newValue.ToString());
-                Console.WriteLine($"更新後確認 {redisConnectionManager.Get<string>("Key1")}\n");
+                Console.WriteLine($"更新後確認 Key1 = {redisConnectionManager.Get<string>("Key1")}\n");
                 Thread.Sleep(1000);
             }
 
