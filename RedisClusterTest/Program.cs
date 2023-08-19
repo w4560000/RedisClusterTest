@@ -107,9 +107,9 @@ namespace RedisClusterTest
                 ConnectRetry = 5
             };
 
-            var redisConnectionManager =  new RedisConnectionManager(configuration, retryPolicy);
+            //var redisConnectionManager =  new RedisConnectionManager(configuration, retryPolicy);
 
-            //var redisConnectionManager = ConnectionMultiplexer.Connect(configuration);// new RedisConnectionManager(configuration, retryPolicy);
+            var redisConnectionManager = new RedisConnectionManager(configuration, retryPolicy);
 
             while (true)
             {
