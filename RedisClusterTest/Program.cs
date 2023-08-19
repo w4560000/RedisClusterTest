@@ -42,7 +42,7 @@ namespace RedisClusterTest
             {
                 try
                 {
-                    var value = _connectionMultiplexer.GetDatabase().StringGet(key, flags: CommandFlags.PreferReplica);
+                    var value = _connectionMultiplexer.GetDatabase().StringGet(key, flags: CommandFlags.DemandReplica);
 
                     if (value.IsNullOrEmpty)
                         return default;
