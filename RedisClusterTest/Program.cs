@@ -86,8 +86,19 @@ namespace RedisClusterTest
             InitSentinelConnection();
             ResetConnection();
 
-            Console.ReadLine();
+            while (true)
+            {
+                var value = _replicaConnectionMultiplexer.GetDatabase().StringGet("Key1");
+                Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} Key1 = {value}");
+                var newValue = Convert.ToInt32(value) + 1;
+                Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} Key1 預計更新為 {newValue}");
+                _masterConnectionMultiplexer.GetDatabase().StringSet("Key1", newValue.ToString());
+                Console.WriteLine($"更新後確認 Key1 = {_replicaConnectionMultiplexer.GetDatabase().StringGet("Key1")}\n");
 
+                Thread.Sleep(1000);
+            }
+
+            Console.ReadLine();
 
             //    var retryPolicy = Policy.Handle<RedisConnectionException>()
             //                .Or<RedisTimeoutException>()
@@ -175,7 +186,6 @@ namespace RedisClusterTest
             masterConfiguration.EndPoints.Add(masterEndPoint);
             _masterConnectionMultiplexer = ConnectionMultiplexer.Connect(masterConfiguration);
 
-
             var replicaEndPoint = server.SentinelGetReplicaAddresses("mymaster").AsEnumerable();
             var replicaConfiguration = new ConfigurationOptions()
             {
@@ -187,7 +197,6 @@ namespace RedisClusterTest
 
             replicaEndPoint.ToList().ForEach(x => masterConfiguration.EndPoints.Add(x));
             _replicaConnectionMultiplexer = ConnectionMultiplexer.Connect(masterConfiguration);
-
 
             Console.WriteLine($"MasterEndPoint: {masterEndPoint}, ReplicaEndPoint: {string.Join(',', replicaEndPoint)}");
         }
