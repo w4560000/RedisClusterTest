@@ -112,7 +112,7 @@ namespace RedisClusterTest
             while (true)
             {
                 var value = redisConnectionManager.Get<string>("Key1");
-                Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} Key1 =value}");
+                Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} Key1 = {value}");
 
                 var newValue = Convert.ToInt32(value) + 1;
 
