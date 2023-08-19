@@ -90,7 +90,12 @@ namespace RedisClusterTest
             var configuration = new ConfigurationOptions()
             {
                 EndPoints = {
-                        { "10.240.0.12:6379" }
+                        { "34.80.222.88:6379" },
+                        { "34.81.158.85:6379" },
+                        { "35.229.161.113:6379" },
+                        { "34.81.112.56:6379" },
+                        { "107.167.177.175:6379" },
+                        { "35.221.130.206:6379" },
                     },
                 AbortOnConnectFail = true,
                 ConnectTimeout = 1000,
